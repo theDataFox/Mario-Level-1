@@ -45,12 +45,14 @@ class Flag(pg.sprite.Sprite):
 
     def handle_state(self):
         """Determines behavior based on state"""
-        if self.state == c.TOP_OF_POLE:
+        if (
+            self.state == c.TOP_OF_POLE
+            or self.state != c.SLIDE_DOWN
+            and self.state == c.BOTTOM_OF_POLE
+        ):
             self.image = self.frames[0]
         elif self.state == c.SLIDE_DOWN:
             self.sliding_down()
-        elif self.state == c.BOTTOM_OF_POLE:
-            self.image = self.frames[0]
 
 
     def sliding_down(self):

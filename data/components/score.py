@@ -18,10 +18,7 @@ class Score(object):
     def __init__(self, x, y, score, flag_pole=False):
         self.x = x
         self.y = y
-        if flag_pole:
-            self.y_vel = -4
-        else:
-            self.y_vel = -3
+        self.y_vel = -4 if flag_pole else -3
         self.sprite_sheet = setup.GFX['item_objects']
         self.create_image_dict()
         self.score_string = str(score)
@@ -94,9 +91,8 @@ class Score(object):
         if score_list:
             self.check_to_delete_floating_scores(score_list, level_info)
 
-        if self.flag_pole_score:
-            if self.digit_list[0].rect.y <= 120:
-                self.y_vel = 0
+        if self.flag_pole_score and self.digit_list[0].rect.y <= 120:
+            self.y_vel = 0
 
 
     def draw(self, screen):

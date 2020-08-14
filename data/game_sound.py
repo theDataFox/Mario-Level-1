@@ -34,8 +34,10 @@ class Sound(object):
         self.mario = mario
         self.handle_state()
 
-    def  handle_state(self):
+    def handle_state(self):
         """Handles the state of the soundn object"""
+        if self.state == c.MARIO_DEAD:
+            return
         if self.state == c.NORMAL:
             if self.mario.dead:
                 self.play_music('death', c.MARIO_DEAD)
@@ -79,14 +81,6 @@ class Sound(object):
                 self.play_music('main_theme', c.NORMAL)
             elif self.mario.dead:
                 self.play_music('death', c.MARIO_DEAD)
-
-
-        elif self.state == c.WORLD_CLEAR:
-            pass
-        elif self.state == c.MARIO_DEAD:
-            pass
-        elif self.state == c.GAME_OVER:
-            pass
 
     def play_music(self, key, state):
         """Plays new music"""
