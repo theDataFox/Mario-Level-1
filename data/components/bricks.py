@@ -55,10 +55,7 @@ class Brick(pg.sprite.Sprite):
 
     def setup_contents(self):
         """Put 6 coins in contents if needed"""
-        if self.contents == '6coins':
-            self.coin_total = 6
-        else:
-            self.coin_total = 0
+        self.coin_total = 6 if self.contents == '6coins' else 0
 
 
     def update(self):
@@ -78,9 +75,8 @@ class Brick(pg.sprite.Sprite):
 
     def resting(self):
         """State when not moving"""
-        if self.contents == '6coins':
-            if self.coin_total == 0:
-                self.state == c.OPENED
+        if self.contents == '6coins' and self.coin_total == 0:
+            self.state == c.OPENED
 
 
     def bumped(self):
@@ -90,13 +86,12 @@ class Brick(pg.sprite.Sprite):
 
         if self.rect.y >= (self.rest_height + 5):
             self.rect.y = self.rest_height
-            if self.contents == 'star':
+            if (
+                self.contents == '6coins'
+                and self.coin_total == 0
+                or self.contents == 'star'
+            ):
                 self.state = c.OPENED
-            elif self.contents == '6coins':
-                if self.coin_total == 0:
-                    self.state = c.OPENED
-                else:
-                    self.state = c.RESTING
             else:
                 self.state = c.RESTING
 

@@ -46,24 +46,28 @@ class Coin(pg.sprite.Sprite):
     def update(self, current_time):
         """Animates flashing coin"""
         if self.first_half:
-            if self.frame_index == 0:
-                if (current_time - self.timer) > 375:
-                    self.frame_index += 1
-                    self.timer = current_time
-            elif self.frame_index < 2:
-                if (current_time - self.timer) > 125:
-                    self.frame_index += 1
-                    self.timer = current_time
-            elif self.frame_index == 2:
-                if (current_time - self.timer) > 125:
-                    self.frame_index -= 1
-                    self.first_half = False
-                    self.timer = current_time
+            if (
+                self.frame_index == 0
+                and (current_time - self.timer) > 375
+                or self.frame_index != 0
+                and self.frame_index < 2
+                and (current_time - self.timer) > 125
+            ):
+                self.frame_index += 1
+                self.timer = current_time
+            elif (
+                self.frame_index != 0
+                and self.frame_index >= 2
+                and (current_time - self.timer) > 125
+                and self.frame_index == 2
+            ):
+                self.frame_index -= 1
+                self.first_half = False
+                self.timer = current_time
         else:
-            if self.frame_index == 1:
-                if (current_time - self.timer) > 125:
-                    self.frame_index -= 1
-                    self.first_half = True
-                    self.timer = current_time
+            if self.frame_index == 1 and (current_time - self.timer) > 125:
+                self.frame_index -= 1
+                self.first_half = True
+                self.timer = current_time
 
         self.image = self.frames[self.frame_index]

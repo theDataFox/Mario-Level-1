@@ -71,10 +71,7 @@ class Powerup(pg.sprite.Sprite):
 
     def sliding(self):
         """Action for when powerup slides along the ground"""
-        if self.direction == c.RIGHT:
-            self.x_vel = 3
-        else:
-            self.x_vel = -3
+        self.x_vel = 3 if self.direction == c.RIGHT else -3
 
 
     def falling(self):
@@ -229,10 +226,7 @@ class Star(Powerup):
         """Action when the star is bouncing around"""
         self.animation()
 
-        if self.direction == c.LEFT:
-            self.x_vel = -5
-        else:
-            self.x_vel = 5
+        self.x_vel = -5 if self.direction == c.LEFT else 5
 
 
 
@@ -315,7 +309,7 @@ class FireBall(pg.sprite.Sprite):
 
     def animation(self):
         """adjusts frame for animation"""
-        if self.state == c.FLYING or self.state == c.BOUNCING:
+        if self.state in [c.FLYING, c.BOUNCING]:
             if (self.current_time - self.animation_timer) > 200:
                 if self.frame_index < 3:
                     self.frame_index += 1

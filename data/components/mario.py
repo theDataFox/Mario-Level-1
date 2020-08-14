@@ -434,14 +434,13 @@ class Mario(pg.sprite.Sprite):
         """This function is called if Mario is standing still"""
         self.check_to_allow_jump(keys)
         self.check_to_allow_fireball(keys)
-        
+
         self.frame_index = 0
         self.x_vel = 0
         self.y_vel = 0
 
-        if keys[tools.keybinding['action']]:
-            if self.fire and self.allow_fireball:
-                self.shoot_fireball(fire_group)
+        if keys[tools.keybinding['action']] and self.fire and self.allow_fireball:
+            self.shoot_fireball(fire_group)
 
         if keys[tools.keybinding['down']]:
             self.crouching = True
@@ -473,10 +472,7 @@ class Mario(pg.sprite.Sprite):
         """Get out of crouch"""
         bottom = self.rect.bottom
         left = self.rect.x
-        if self.facing_right:
-            self.image = self.right_frames[0]
-        else:
-            self.image = self.left_frames[0]
+        self.image = self.right_frames[0] if self.facing_right else self.left_frames[0]
         self.rect = self.image.get_rect()
         self.rect.bottom = bottom
         self.rect.x = left
@@ -500,27 +496,27 @@ class Mario(pg.sprite.Sprite):
         setup.SFX['fireball'].play()
         self.fireball_count = self.count_number_of_fireballs(powerup_group)
 
-        if (self.current_time - self.last_fireball_time) > 200:
-            if self.fireball_count < 2:
-                self.allow_fireball = False
-                powerup_group.add(
-                    powerups.FireBall(self.rect.right, self.rect.y, self.facing_right))
-                self.last_fireball_time = self.current_time
+        if (
+            self.current_time - self.last_fireball_time
+        ) > 200 and self.fireball_count < 2:
+            self.allow_fireball = False
+            powerup_group.add(
+                powerups.FireBall(self.rect.right, self.rect.y, self.facing_right))
+            self.last_fireball_time = self.current_time
 
-                self.frame_index = 6
-                if self.facing_right:
-                    self.image = self.right_frames[self.frame_index]
-                else:
-                    self.image = self.left_frames[self.frame_index]
+            self.frame_index = 6
+            if self.facing_right:
+                self.image = self.right_frames[self.frame_index]
+            else:
+                self.image = self.left_frames[self.frame_index]
 
 
     def count_number_of_fireballs(self, powerup_group):
         """Count number of fireballs that exist in the level"""
-        fireball_list = []
+        fireball_list = [
+            powerup for powerup in powerup_group if powerup.name == c.FIREBALL
+        ]
 
-        for powerup in powerup_group:
-            if powerup.name == c.FIREBALL:
-                fireball_list.append(powerup)
 
         return len(fireball_list)
 
@@ -555,17 +551,16 @@ class Mario(pg.sprite.Sprite):
             self.max_x_vel = c.MAX_WALK_SPEED
             self.x_accel = c.WALK_ACCEL
 
-        if keys[tools.keybinding['jump']]:
-            if self.allow_jump:
-                if self.big:
-                    setup.SFX['big_jump'].play()
-                else:
-                    setup.SFX['small_jump'].play()
-                self.state = c.JUMP
-                if self.x_vel > 4.5 or self.x_vel < -4.5:
-                    self.y_vel = c.JUMP_VEL - .5
-                else:
-                    self.y_vel = c.JUMP_VEL
+        if keys[tools.keybinding['jump']] and self.allow_jump:
+            if self.big:
+                setup.SFX['big_jump'].play()
+            else:
+                setup.SFX['small_jump'].play()
+            self.state = c.JUMP
+            if self.x_vel > 4.5 or self.x_vel < -4.5:
+                self.y_vel = c.JUMP_VEL - .5
+            else:
+                self.y_vel = c.JUMP_VEL
 
 
         if keys[tools.keybinding['left']]:
@@ -598,18 +593,13 @@ class Mario(pg.sprite.Sprite):
                 self.x_vel -= self.x_accel
 
         else:
-            if self.facing_right:
-                if self.x_vel > 0:
-                    self.x_vel -= self.x_accel
-                else:
-                    self.x_vel = 0
-                    self.state = c.STAND
+            if self.facing_right and self.x_vel > 0:
+                self.x_vel -= self.x_accel
+            elif self.facing_right or self.x_vel >= 0:
+                self.x_vel = 0
+                self.state = c.STAND
             else:
-                if self.x_vel < 0:
-                    self.x_vel += self.x_accel
-                else:
-                    self.x_vel = 0
-                    self.state = c.STAND
+                self.x_vel += self.x_accel
 
 
     def calculate_animation_speed(self):
@@ -649,9 +639,8 @@ class Mario(pg.sprite.Sprite):
             self.gravity = c.GRAVITY
             self.state = c.FALL
 
-        if keys[tools.keybinding['action']]:
-            if self.fire and self.allow_fireball:
-                self.shoot_fireball(fire_group)
+        if keys[tools.keybinding['action']] and self.fire and self.allow_fireball:
+            self.shoot_fireball(fire_group)
 
 
     def falling(self, keys, fire_group):
@@ -668,9 +657,8 @@ class Mario(pg.sprite.Sprite):
             if self.x_vel < self.max_x_vel:
                 self.x_vel += self.x_accel
 
-        if keys[tools.keybinding['action']]:
-            if self.fire and self.allow_fireball:
-                self.shoot_fireball(fire_group)
+        if keys[tools.keybinding['action']] and self.fire and self.allow_fireball:
+            self.shoot_fireball(fire_group)
 
 
     def jumping_to_death(self):
@@ -950,7 +938,7 @@ class Mario(pg.sprite.Sprite):
                 self.image = self.right_frames[9]
             elif (self.current_time - self.flag_pole_timer) < 130:
                 self.image = self.right_frames[10]
-            elif (self.current_time - self.flag_pole_timer) >= 130:
+            else:
                 self.flag_pole_timer = self.current_time
 
             self.rect.right = self.flag_pole_right
@@ -960,7 +948,7 @@ class Mario(pg.sprite.Sprite):
             if self.rect.bottom >= 488:
                 self.flag_pole_timer = self.current_time
 
-        elif self.rect.bottom >= 493:
+        else:
             self.image = self.right_frames[10]
 
 
@@ -1071,18 +1059,19 @@ class Mario(pg.sprite.Sprite):
 
     def check_if_hurt_invincible(self):
         """Check if Mario is still temporarily invincible after getting hurt"""
-        if self.hurt_invincible and self.state != c.BIG_TO_SMALL:
-            if self.hurt_invisible_timer2 == 0:
-                self.hurt_invisible_timer2 = self.current_time
-            elif (self.current_time - self.hurt_invisible_timer2) < 2000:
-                self.hurt_invincible_check()
-            else:
-                self.hurt_invincible = False
-                self.hurt_invisible_timer = 0
-                self.hurt_invisible_timer2 = 0
-                for frames in self.all_images:
-                    for image in frames:
-                        image.set_alpha(255)
+        if not self.hurt_invincible or self.state == c.BIG_TO_SMALL:
+            return
+        if self.hurt_invisible_timer2 == 0:
+            self.hurt_invisible_timer2 = self.current_time
+        elif (self.current_time - self.hurt_invisible_timer2) < 2000:
+            self.hurt_invincible_check()
+        else:
+            self.hurt_invincible = False
+            self.hurt_invisible_timer = 0
+            self.hurt_invisible_timer2 = 0
+            for frames in self.all_images:
+                for image in frames:
+                    image.set_alpha(255)
 
 
     def hurt_invincible_check(self):
@@ -1101,10 +1090,7 @@ class Mario(pg.sprite.Sprite):
         if self.crouching and self.big:
             bottom = self.rect.bottom
             left = self.rect.x
-            if self.facing_right:
-                self.image = self.right_frames[7]
-            else:
-                self.image = self.left_frames[7]
+            self.image = self.right_frames[7] if self.facing_right else self.left_frames[7]
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
             self.rect.x = left

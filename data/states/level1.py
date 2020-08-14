@@ -553,9 +553,7 @@ class Level1(tools._State):
                 self.mario.y_vel = -1
                 self.mario.state = c.BIG_TO_SMALL
                 self.convert_fireflowers_to_mushrooms()
-            elif self.mario.hurt_invincible:
-                pass
-            else:
+            elif not self.mario.hurt_invincible:
                 self.mario.start_death_jump(self.game_info)
                 self.state = c.FROZEN
 
@@ -597,7 +595,7 @@ class Level1(tools._State):
                     score.Score(self.mario.rect.centerx - self.viewport.x,
                                 self.mario.rect.y, 1000))
 
-                if self.mario.big and self.mario.fire == False:
+                if self.mario.big and not self.mario.fire:
                     self.mario.state = c.BIG_TO_FIRE
                     self.mario.in_transition_state = True
                 elif self.mario.big == False:
@@ -675,7 +673,7 @@ class Level1(tools._State):
                 self.sprites_about_to_die_group.add(shell)
                 shell.start_death_jump(c.RIGHT)
             else:
-                if not self.mario.hurt_invincible and not self.mario.invincible:
+                if not self.mario.hurt_invincible:
                     self.state = c.FROZEN
                     self.mario.start_death_jump(self.game_info)
 
@@ -752,8 +750,6 @@ class Level1(tools._State):
                 else:
                     coin_box.start_bump(self.moving_score_list)
 
-            elif coin_box.state == c.OPENED:
-                pass
             setup.SFX['bump'].play()
             self.mario.y_vel = 7
             self.mario.rect.y = coin_box.rect.bottom
@@ -862,8 +858,7 @@ class Level1(tools._State):
                 and self.mario.state != c.WALKING_TO_CASTLE \
                 and self.mario.state != c.END_OF_LEVEL_FALL:
                 self.mario.state = c.FALL
-            elif self.mario.state == c.WALKING_TO_CASTLE or \
-                self.mario.state == c.END_OF_LEVEL_FALL:
+            elif self.mario.state in [c.WALKING_TO_CASTLE, c.END_OF_LEVEL_FALL]:
                 self.mario.state = c.END_OF_LEVEL_FALL
 
         self.mario.rect.y -= 1
@@ -893,22 +888,23 @@ class Level1(tools._State):
 
     def adjust_mario_for_y_shell_collisions(self, shell):
         """Mario collisions with Koopas in their shells on the y axis"""
-        if self.mario.y_vel > 0:
-            self.game_info[c.SCORE] += 400
-            self.moving_score_list.append(
-                score.Score(self.mario.rect.centerx - self.viewport.x,
-                            self.mario.rect.y, 400))
-            if shell.state == c.JUMPED_ON:
-                setup.SFX['kick'].play()
-                shell.state = c.SHELL_SLIDE
-                if self.mario.rect.centerx < shell.rect.centerx:
-                    shell.direction = c.RIGHT
-                    shell.rect.left = self.mario.rect.right + 5
-                else:
-                    shell.direction = c.LEFT
-                    shell.rect.right = self.mario.rect.left - 5
+        if self.mario.y_vel <= 0:
+            return
+        self.game_info[c.SCORE] += 400
+        self.moving_score_list.append(
+            score.Score(self.mario.rect.centerx - self.viewport.x,
+                        self.mario.rect.y, 400))
+        if shell.state == c.JUMPED_ON:
+            setup.SFX['kick'].play()
+            shell.state = c.SHELL_SLIDE
+            if self.mario.rect.centerx < shell.rect.centerx:
+                shell.direction = c.RIGHT
+                shell.rect.left = self.mario.rect.right + 5
             else:
-                shell.state = c.JUMPED_ON
+                shell.direction = c.LEFT
+                shell.rect.right = self.mario.rect.left - 5
+        else:
+            shell.state = c.JUMPED_ON
 
 
     def adjust_enemy_position(self):
@@ -1022,9 +1018,11 @@ class Level1(tools._State):
             test_group = pg.sprite.Group(self.ground_step_pipe_group,
                                          self.coin_box_group,
                                          self.brick_group)
-            if pg.sprite.spritecollideany(enemy, test_group) is None:
-                if enemy.state != c.JUMP:
-                    enemy.state = c.FALL
+            if (
+                pg.sprite.spritecollideany(enemy, test_group) is None
+                and enemy.state != c.JUMP
+            ):
+                enemy.state = c.FALL
 
             enemy.rect.y -= 1
 
@@ -1212,11 +1210,7 @@ class Level1(tools._State):
     def bounce_fireball(self, fireball):
         """Simulates fireball bounce off ground"""
         fireball.y_vel = -8
-        if fireball.direction == c.RIGHT:
-            fireball.x_vel = 15
-        else:
-            fireball.x_vel = -15
-
+        fireball.x_vel = 15 if fireball.direction == c.RIGHT else -15
         if fireball in self.powerup_group:
             fireball.state = c.BOUNCING
 
@@ -1279,9 +1273,11 @@ class Level1(tools._State):
         """Checks if sprite should enter a falling state"""
         sprite.rect.y += 1
 
-        if pg.sprite.spritecollideany(sprite, sprite_group) is None:
-            if sprite.state != c.JUMP:
-                sprite.state = c.FALL
+        if (
+            pg.sprite.spritecollideany(sprite, sprite_group) is None
+            and sprite.state != c.JUMP
+        ):
+            sprite.state = c.FALL
 
         sprite.rect.y -= 1
 
@@ -1369,9 +1365,9 @@ class Level1(tools._State):
         """Changes the view of the camera"""
         third = self.viewport.x + self.viewport.w//3
         mario_center = self.mario.rect.centerx
-        mario_right = self.mario.rect.right
-
         if self.mario.x_vel > 0 and mario_center >= third:
+            mario_right = self.mario.rect.right
+
             mult = 0.5 if mario_right < self.viewport.centerx else 1
             new = self.viewport.x + mult * self.mario.x_vel
             highest = self.level_rect.w - self.viewport.w

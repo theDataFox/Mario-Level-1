@@ -44,9 +44,8 @@ class OverheadInfo(object):
     def create_image_dict(self):
         """Creates the initial images for the score"""
         self.image_dict = {}
-        image_list = []
+        image_list = [self.get_image(3, 230, 7, 7)]
 
-        image_list.append(self.get_image(3, 230, 7, 7))
         image_list.append(self.get_image(12, 230, 7, 7))
         image_list.append(self.get_image(19, 230, 7, 7))
         image_list.append(self.get_image(27, 230, 7, 7))
@@ -305,7 +304,7 @@ class OverheadInfo(object):
         self.count_down_images = []
         self.create_label(self.count_down_images, str(self.time), 645, 55)
         if len(self.count_down_images) < 2:
-            for i in range(2):
+            for _ in range(2):
                 self.count_down_images.insert(0, Character(self.image_dict['0']))
             self.set_label_rects(self.count_down_images, 645, 55)
         elif len(self.count_down_images) < 3:
@@ -349,8 +348,6 @@ class OverheadInfo(object):
             self.draw_level_screen_info(surface)
         elif self.state == c.TIME_OUT:
             self.draw_time_out_screen_info(surface)
-        else:
-            pass
 
 
 

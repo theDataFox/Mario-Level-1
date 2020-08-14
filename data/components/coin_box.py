@@ -77,25 +77,32 @@ class Coin_box(pg.sprite.Sprite):
     def resting(self):
         """Action when in the RESTING state"""
         if self.first_half:
-            if self.frame_index == 0:
-                if (self.current_time - self.animation_timer) > 375:
-                    self.frame_index += 1
-                    self.animation_timer = self.current_time
-            elif self.frame_index < 2:
-                if (self.current_time - self.animation_timer) > 125:
-                    self.frame_index += 1
-                    self.animation_timer = self.current_time
-            elif self.frame_index == 2:
-                if (self.current_time - self.animation_timer) > 125:
-                    self.frame_index -= 1
-                    self.first_half = False
-                    self.animation_timer = self.current_time
+            if (
+                self.frame_index == 0
+                and (self.current_time - self.animation_timer) > 375
+                or self.frame_index != 0
+                and self.frame_index < 2
+                and (self.current_time - self.animation_timer) > 125
+            ):
+                self.frame_index += 1
+                self.animation_timer = self.current_time
+            elif (
+                self.frame_index != 0
+                and self.frame_index >= 2
+                and (self.current_time - self.animation_timer) > 125
+                and self.frame_index == 2
+            ):
+                self.frame_index -= 1
+                self.first_half = False
+                self.animation_timer = self.current_time
         else:
-            if self.frame_index == 1:
-                if (self.current_time - self.animation_timer) > 125:
-                    self.frame_index -= 1
-                    self.first_half = True
-                    self.animation_timer = self.current_time
+            if (
+                self.frame_index == 1
+                and (self.current_time - self.animation_timer) > 125
+            ):
+                self.frame_index -= 1
+                self.first_half = True
+                self.animation_timer = self.current_time
 
         self.image = self.frames[self.frame_index]
 
